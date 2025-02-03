@@ -7,7 +7,8 @@ import 'package:store_app/view/auth/login_view.dart';
 import 'package:store_app/view/auth/reset_view.dart';
 
 class ForgotView extends StatelessWidget {
-  const ForgotView({super.key});
+  ForgotView({super.key});
+  final TextEditingController emailControllor = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +33,10 @@ class ForgotView extends StatelessWidget {
               ),
             ),
             SpaceH12(),
-            CommonTextfield(labelText: "Enter email"),
+            CommonTextfield(
+              labelText: "Enter email",
+              controller: emailControllor,
+            ),
             SpaceH32(),
             CommonButton(
               text: "Send",

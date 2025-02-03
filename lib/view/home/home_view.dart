@@ -1,11 +1,10 @@
 import 'dart:convert';
-import 'dart:nativewrappers/_internal/vm/lib/developer.dart';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:store_app/res/components/common_text.dart';
 import 'package:store_app/view/cart/cart_view.dart';
 import 'package:store_app/view/home/components/common_card.dart';
+import 'package:store_app/model/cart_item.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -16,6 +15,7 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   List<dynamic> products = [];
+  List<CartItem> cartItems = [];
 
   Future<void> fetchData() async {
     final response = await http.get(
@@ -23,12 +23,28 @@ class _HomeViewState extends State<HomeView> {
     );
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
-      setState(() {
-        products = data;
-      });
-      print(data);
+      if (mounted) {
+        setState(() {
+          products = data;
+        });
+      }
     } else {
       print('Failed to load data');
+    }
+  }
+
+  void _addToCart(String title, double price) {
+    final existingItemIndex = cartItems.indexWhere(
+      (item) => item.title == title,
+    );
+    if (existingItemIndex >= 0) {
+      setState(() {
+        cartItems[existingItemIndex].quantity += 1;
+      });
+    } else {
+      setState(() {
+        cartItems.add(CartItem(title: title, price: price));
+      });
     }
   }
 
@@ -47,6 +63,29 @@ class _HomeViewState extends State<HomeView> {
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.red,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.shopping_cart),
+            color: Colors.white,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CartView(cartItems: cartItems),
+                ),
+              );
+            },
+          ),
+          Padding(
+            padding: EdgeInsets.only(right: 10),
+            child: Center(
+              child: Text(
+                '${cartItems.length}',
+                style: TextStyle(fontSize: 20, color: Colors.white),
+              ),
+            ),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -65,15 +104,9 @@ class _HomeViewState extends State<HomeView> {
               price: 'Rs ${products[index]['price']?.toString()}',
               buttonText: 'Add to Cart',
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (context) => CartView(
-                          title: products[index]['title'],
-                          price: products[index]['price']!.toString(),
-                        ),
-                  ),
+                _addToCart(
+                  products[index]['title'],
+                  products[index]['price'].toDouble(),
                 );
               },
             );
