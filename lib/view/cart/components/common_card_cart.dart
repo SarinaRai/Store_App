@@ -12,6 +12,7 @@ class CommonCardCart extends StatelessWidget {
     required this.price,
     required this.quantity,
     required this.onQuantityChanged,
+    required Image image,
   });
 
   @override

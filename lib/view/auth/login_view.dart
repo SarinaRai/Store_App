@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:store_app/res/components/common_button.dart';
@@ -11,7 +9,6 @@ import 'package:store_app/view/bottom_navigation/buttom_nav_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
-
   @override
   State<LoginView> createState() => _LoginViewState();
 }
@@ -80,10 +77,11 @@ class _LoginViewState extends State<LoginView> {
                     prefs.remove('savedEmail');
                     prefs.setBool('rememberMe', false);
                   }
-
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => ButtomNavView()),
+                    MaterialPageRoute<void>(
+                      builder: (BuildContext context) => ButtomNavView(),
+                    ),
                   );
                 },
                 text: 'Login',
