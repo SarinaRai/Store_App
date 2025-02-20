@@ -1,26 +1,39 @@
 import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:store_app/model/cart_item.dart';
+import 'package:store_app/model/product._model.dart';
+import 'package:store_app/repository/auth_repo/product_repo.dart';
 
 class HomeViewmodel extends ChangeNotifier {
-  List<dynamic> _products = [];
+  bool fetchingData = false;
+
+  List<ProductListModel> _products = [];
+  List<ProductListModel> get products => _products;
+
   List<CartItem> _cartItems = [];
   static final String _cartItemsKey = 'cartItems';
-  List<dynamic> get products => _products;
+
   List<CartItem> get cartItems => _cartItems;
 
-  Future<void> fetchData() async {
-    final response = await http.get(
-      Uri.parse('https://fakestoreapi.com/products'),
-    );
-    if (response.statusCode == 200) {
-      _products = json.decode(response.body);
-      notifyListeners();
-    } else {
-      print('Failed to load the data');
+  final ProductRepository productRepository = ProductRepository();
+
+  Future<void> fetchProduct() async {
+    fetchingData = true;
+    try {
+      final fetchedProducts = await productRepository.getProductData();
+      if (fetchedProducts != null) {
+        _products = fetchedProducts;
+        notifyListeners();
+      } else {
+        throw Exception('Failed to fetch products');
+      }
+    } catch (e) {
+      print(e.toString());
     }
+    fetchingData = false;
   }
 
   Future<void> loadCartItems() async {
@@ -42,7 +55,7 @@ class HomeViewmodel extends ChangeNotifier {
     await prefs.setString(_cartItemsKey, cartItemsJson);
   }
 
-  void addToCart(String title, double price, String image) {
+  void addToCart(String title, dynamic price, String image) {
     final existingItemIndex = _cartItems.indexWhere(
       (item) => item.title == title,
     );

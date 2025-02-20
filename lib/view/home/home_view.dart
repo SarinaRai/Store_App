@@ -14,7 +14,7 @@ class HomeView extends StatelessWidget {
       create:
           (_) =>
               HomeViewmodel()
-                ..fetchData()
+                ..fetchProduct()
                 ..loadCartItems(),
       child: Consumer<HomeViewmodel>(
         builder: (context, viewModel, child) {
@@ -64,15 +64,15 @@ class HomeView extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final product = viewModel.products[index];
                   return CommonCard(
-                    image: Image.network(product['image'], height: 150),
-                    title: product['title'],
-                    price: 'Rs ${product['price']?.toString()}',
+                    image: Image.network(product.image ?? '', height: 150),
+                    title: product.title ?? '',
+                    price: 'Rs ${product.price?.toString()}',
                     buttonText: 'Add to Cart',
                     onPressed: () {
                       viewModel.addToCart(
-                        product['title'],
-                        product['price'].toDouble(),
-                        product['image'],
+                        product.title ?? '',
+                        product.price ?? '',
+                        product.image ?? '',
                       );
                     },
                   );

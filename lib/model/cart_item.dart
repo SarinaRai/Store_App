@@ -1,6 +1,6 @@
 class CartItem {
   final String title;
-  final double price;
+  final dynamic price;
   int quantity;
   final String image;
 
